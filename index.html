@@ -21,7 +21,7 @@
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:auto; }
+  html { scroll-behavior:smooth; }
   body {
     background:var(--bg); color:var(--text);
     font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden;
@@ -736,18 +736,32 @@
   });
 
   // Nav pill highlight on scroll
-  const sections = document.querySelectorAll('.menu-section[id]');
+  const sections = Array.from(document.querySelectorAll('.menu-section[id]'));
   const pills = document.querySelectorAll('.cat-pill');
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        pills.forEach(p => p.classList.remove('active'));
-        const a = document.querySelector(`.cat-pill[href="#${e.target.id}"]`);
-        if (a) { a.classList.add('active'); a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }
-      }
+
+  function setActive(id) {
+    pills.forEach(p => p.classList.remove('active'));
+    const a = document.querySelector(`.cat-pill[href="#${id}"]`);
+    if (a) { a.classList.add('active'); a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }
+  }
+
+  function updateActive() {
+    // If scrolled to the very bottom, activate last section
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+      setActive(sections[sections.length - 1].id);
+      return;
+    }
+    // Find the last section whose top is at or above 30% of viewport height
+    const threshold = window.innerHeight * 0.30;
+    let best = null;
+    sections.forEach(s => {
+      if (s.getBoundingClientRect().top <= threshold) best = s;
     });
-  }, {rootMargin:'-20% 0px -65% 0px'});
-  sections.forEach(s => obs.observe(s));
+    if (best) setActive(best.id);
+  }
+
+  window.addEventListener('scroll', updateActive, {passive: true});
+  updateActive();
 
 </script>
 
