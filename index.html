@@ -743,7 +743,10 @@
   function setActive(id) {
     pills.forEach(p => p.classList.remove('active'));
     const a = document.querySelector(`.cat-pill[href="#${id}"]`);
-    if (a) { a.classList.add('active'); a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }
+    if (!a) return;
+    a.classList.add('active');
+    const nav = document.querySelector('.cat-nav');
+    nav.scrollTo({ left: a.offsetLeft - (nav.offsetWidth / 2) + (a.offsetWidth / 2), behavior: 'smooth' });
   }
 
   function updateActive() {
